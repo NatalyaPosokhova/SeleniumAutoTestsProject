@@ -23,7 +23,9 @@ namespace SeleniumYandexMarketTests.StepDefinitions
         private LaptopsPage _laptopsPage;
         
         private Actions _action;
-        public YandexMarketLaptopsFeatureSteps(ScenarioContext context)
+        private readonly ErrorDriver _errorDriver;
+
+        public YandexMarketLaptopsFeatureSteps(ScenarioContext context, ErrorDriver errorDriver)
         {
             _context = context;
             _driver = new ChromeDriver(Assembly.GetExecutingAssembly().Location + "/..");
@@ -34,22 +36,25 @@ namespace SeleniumYandexMarketTests.StepDefinitions
             _yandexMarketHomePage = new YandexMarketHomePage(_driver);
             _laptopsPage = new LaptopsPage(_driver);
             _action = new Actions(_driver);
+            _errorDriver = errorDriver;
         }
 
         [Given(@"I have navigated to YandexMarket (.*) website")]
         public void GivenIHaveNavigatedToYandexMarketWebsite(string url)
         {
-            _driver.Navigate().GoToUrl(url);
+            _errorDriver.TryExecute(() => _driver.Navigate().GoToUrl(url));
             CheckCaptcha();
         }
         
         [Given(@"I transferred on laptops page")]
         public void GivenITransferredOnLaptopsPage()
         {
-            _yandexMarketHomePage.BurgerMenu.Click();
-            _action.MoveToElement(_yandexMarketHomePage.ComputersSection).Perform();
-            _yandexMarketHomePage.LaptopsSection.Click();
-
+            _errorDriver.TryExecute(() =>
+           {
+               _yandexMarketHomePage.BurgerMenu.Click();
+               _action.MoveToElement(_yandexMarketHomePage.ComputersSection).Perform();
+               _yandexMarketHomePage.LaptopsSection.Click();
+           });
             CheckCaptcha();
         }
         
@@ -57,23 +62,26 @@ namespace SeleniumYandexMarketTests.StepDefinitions
         public void WhenIChooseManufacturer(string manufacturer)
         {
             _context.Add("Manufacturer", manufacturer);
-            _laptopsPage.ShowAllBtn.Click();
-            _laptopsPage.Input.SendKeys(manufacturer);
-            _laptopsPage.Manufacturer.Click();
+            _errorDriver.TryExecute(() =>
+            {
+                _laptopsPage.ShowAllBtn.Click();
+                _laptopsPage.Input.SendKeys(manufacturer);
+                _laptopsPage.Manufacturer.Click();
+            });
         }
         
         [When(@"I choose lower price (.*)")]
         public void WhenIChooseLowerPrice(uint priceFrom)
         {
             _context.Add("PriceFrom", priceFrom);
-            _laptopsPage.PriceFrom.SendKeys(priceFrom.ToString());
+            _errorDriver.TryExecute(() => _laptopsPage.PriceFrom.SendKeys(priceFrom.ToString()));
         }
         
         [When(@"I choose upper price (.*)")]
         public void WhenIChooseUpperPrice(uint priceTo)
         {
             _context.Add("PriceTo", priceTo);
-            _laptopsPage.PriceTo.SendKeys(priceTo.ToString());
+            _errorDriver.TryExecute(() => _laptopsPage.PriceTo.SendKeys(priceTo.ToString()));
         }
         
         [Then(@"I should get laptops according to manufacturer and entered prices")]
@@ -82,13 +90,16 @@ namespace SeleniumYandexMarketTests.StepDefinitions
             Thread.Sleep(5000);
             string[] actualPrices = new string[] { };
             string[] actualTitles = new string[] { };
-            actualPrices = _laptopsPage.Prices.
-                Select(price => price.Text).
-                Where(price => !price.Contains("%")).
-                Select(price => Regex.Replace(price, @"\D", "")).ToArray();
 
-            actualTitles = _laptopsPage.Titles.Select(price => price.Text).ToArray();
+            _errorDriver.TryExecute(() =>
+            {
+                actualPrices = _laptopsPage.Prices.
+                    Select(price => price.Text).
+                    Where(price => !price.Contains("%")).
+                    Select(price => Regex.Replace(price, @"\D", "")).ToArray();
 
+                actualTitles = _laptopsPage.Titles.Select(price => price.Text).ToArray();
+            });
             var lowerPricesFromElements = actualPrices.Where(price => Convert.ToInt32(price) < _context.Get<uint>("PriceFrom"));
             var upperPricesToElements = actualPrices.Where(price => Convert.ToInt32(price) > _context.Get<uint>("PriceTo"));
             Assert.IsTrue(actualPrices.Length > 0);
@@ -108,10 +119,13 @@ namespace SeleniumYandexMarketTests.StepDefinitions
 
         private void CheckCaptcha()
         {
-            if (_driver.Url.Contains("showcaptcha?"))
+            _errorDriver.TryExecute(() =>
             {
-                _captchaPage.Captcha.Click();
-            }
+                if (_driver.Url.Contains("showcaptcha?"))
+                {
+                    _captchaPage.Captcha.Click();
+                }
+            });
         }
     }
 }

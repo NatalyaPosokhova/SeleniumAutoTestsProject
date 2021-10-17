@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using SeleniumExtras.PageObjects;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace SeleniumYandexMarketTests.Pages
@@ -34,8 +35,13 @@ namespace SeleniumYandexMarketTests.Pages
         [CacheLookup]
         public IWebElement PriceTo { get; set; }
 
-        [FindsBy(How = How.XPath, Using = "//*[@data-zone-name='price']/*/*/*/span")]
+        [FindsBy(How = How.XPath, Using = "//*[@data-zone-name='price']/*/a/*/span")]
         [CacheLookup]
         public IList<IWebElement> Prices { get; set; }
+
+        [FindsBy(How = How.XPath, Using = "//*[@data-zone-name='title']/*/span")]
+        [CacheLookup]
+        public IList<IWebElement> Titles { get; set; }
+        
     }
 }

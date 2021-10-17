@@ -28,10 +28,12 @@ namespace SeleniumYandexMarketTests
         public void Setup()
         {
             _driver = new ChromeDriver();
+            _driver.Manage().Window.Maximize();
+            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
+
             _action = new Actions(_driver);
             _yandexMarketHomePage = new YandexMarketHomePage(_driver);
             _captchaPage = new CaptchaPage(_driver);
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
 
             _baseURL = "https://market.yandex.ru/";
             _manufacturer = "Lenovo";

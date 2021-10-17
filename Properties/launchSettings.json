@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SeleniumYandexMarketTests": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "MSBUILDSINGLELOADCONTEXT": "1"
+      }
+    }
+  }
+}

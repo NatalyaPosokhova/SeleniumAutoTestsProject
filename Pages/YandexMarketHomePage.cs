@@ -14,7 +14,7 @@ namespace SeleniumYandexMarketTests.Pages
             _driver = driver;
             PageFactory.InitElements(_driver, this);
         }
-        
+
         [FindsBy(How = How.XPath, Using = "//*[@data-apiary-widget-name='@MarketNode/HeaderCatalogEntrypoint']/*/*[@type='button']")]
         [CacheLookup]
         public IWebElement BurgerMenu { get; set; }
@@ -26,6 +26,5 @@ namespace SeleniumYandexMarketTests.Pages
         [FindsBy(How = How.XPath, Using = "//*[@data-autotest-id='subItems']/*/*/*[text()='Ноутбуки']")]
         [CacheLookup]
         public IWebElement LaptopsSection { get; set; }
-
     }
 }
